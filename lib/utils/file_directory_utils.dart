@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import '../model/video_file_dir_model.dart';
+import 'my_icons_utils.dart';
 
 class FileDirectoryUtils {
   /// 根据父级路径获取目录下指定文件格式类型的所有非空目录
@@ -117,6 +120,46 @@ class FileDirectoryUtils {
       }
     }
     return fileList;
+  }
+
+  /// 创建目录列表
+  static Widget buildDirList({required List<VideoFileDirModel> dirList, Function? onTap}) {
+    return Scrollbar(
+        child: ListView.builder(
+            itemExtent: 66,
+            itemCount: dirList.length,
+            itemBuilder: (context, index) {
+              VideoFileDirModel dirInfo = dirList[index];
+              String path = dirInfo.path;
+              return InkWell(
+                onTap: () {
+                  print("directory path: $path");
+                  if (onTap != null) {
+                    onTap();
+                  }
+                },
+                child: ListTile(
+                  horizontalTitleGap: 0,
+                  leading: const Padding(
+                    padding: EdgeInsets.only(right: 10),
+                    child: Icon(
+                      MyIconsUtils.folderFullBackground,
+                      size: 60,
+                      color: Colors.black26,
+                    ),
+                  ),
+                  title: Text(
+                    dirInfo.getFullName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    "${dirInfo.itemsNumber}个视频",
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              );
+            }));
   }
 
 }

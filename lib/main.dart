@@ -1,12 +1,18 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'model/video_file_dir_model.dart';
+import 'page/video_directory_list.dart';
+import 'utils/file_directory_utils.dart';
 import 'utils/media_store_utils.dart';
 import 'utils/permission_utils.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const GetMaterialApp(
+    home: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -36,6 +42,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  String? _dir;
   /// 是否已经申请权限
   bool _requestPermission = false;
   void _incrementCounter() {
@@ -61,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       });
     } else {
-      getMediaStoreVideoDirList();
+      //getMediaStoreVideoDirList();
     }
     return Scaffold(
       appBar: AppBar(
@@ -78,6 +85,23 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            TextButton(onPressed: () async {
+              String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+              print("selectedDirectory:$selectedDirectory");
+              if (selectedDirectory != null) {
+                setState((){
+                  _dir = selectedDirectory;
+                });
+              }
+            }, child: const Text("获取目录")),
+            TextButton(onPressed: () async {
+              print("dir:$_dir");
+              var dirListByPath = await FileDirectoryUtils.getNotEmptyDirListByPathAndFormatSync(path: _dir!, recursive: true);
+              print("dirListByPath:$dirListByPath");
+            }, child: const Text("打印获取目录")),
+            TextButton(onPressed: () {
+              Get.to(VideoDirectoryList(dir: _dir,));
+            }, child: const Text("进入目录")),
           ],
         ),
       ),
