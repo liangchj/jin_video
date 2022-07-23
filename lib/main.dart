@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'db/mmkv_cache.dart';
 import 'model/video_file_dir_model.dart';
 import 'page/video_directory_list.dart';
 import 'utils/file_directory_utils.dart';
@@ -21,13 +22,30 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return FutureBuilder(
+        future: MMKVCacheInit.preInit(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return MaterialApp(
+              title: 'Flutter Demo',
+              theme: ThemeData(
+                primarySwatch: Colors.blue,
+              ),
+              home: const MyHomePage(title: 'Flutter Demo Home Page'),
+            );
+          }
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+    );
+    /*return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+    );*/
   }
 }
 
@@ -102,6 +120,14 @@ class _MyHomePageState extends State<MyHomePage> {
             TextButton(onPressed: () {
               Get.to(VideoDirectoryList(dir: _dir,));
             }, child: const Text("进入目录")),
+            TextButton(onPressed: () {
+              print("DefaultMMKVCache.getInstance():${DefaultMMKVCache.getInstance()}");
+              DefaultMMKVCache.getInstance().setString("mmkv_str", "mmkv 存入字符串");
+            }, child: const Text("存入字符串")),
+            TextButton(onPressed: () {
+              var string = DefaultMMKVCache.getInstance().getString("mmkv_str");
+              print("mmkv 读取字符串 mmkv_str：$string");
+            }, child: const Text("读取字符串")),
           ],
         ),
       ),
